@@ -1722,6 +1722,18 @@ GSTextureCache::Target* GSTextureCache::LookupTarget(GIFRegTEX0 TEX0, const GSVe
 					}
 				}
 
+				// TODO: What might be a nicer solution than this, is to rearrange the targets to match the new layout, however this comes with some caviets:
+				// 1. They can draw wider than the FBW
+				// 2. The dirty+valid rects will need to also be rearranged
+				// 3. This could mean larger targets hanging around more
+				// 4. Sources which reference a target may become invalid and will need to be removed
+				// 5. Potential performance implications from additional render passes/copying
+				//
+				// But the bonuses are:
+				// 1. Rearranging the page layout will fix quite a few games which do this
+				// 2. Preserved data will be in the correct place (in most cases)
+				// 3. Less deleting sources/targets
+				// 4. We can basically do clears in hardware, if they aren't insane ones
 				if (can_use && !is_shuffle && preserve_alpha && preserve_rgb && TEX0.TBW != t->m_TEX0.TBW && t->m_dirty.size() >= 1)
 				{
 					can_use = false;
